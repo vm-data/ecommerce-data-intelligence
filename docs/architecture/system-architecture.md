@@ -102,3 +102,27 @@ These will be evaluated as advanced extensions.
 - Git for version control.
 - GitHub for source code and documentation.
 - Automated tests for data and code quality.
+
+## 11. Resource and Deployment Strategy
+
+The project will initially run on a local development
+environment using Docker and WSL2.
+
+Because development hardware has limited memory and
+disk capacity, services will be started selectively
+rather than running the entire stack simultaneously.
+
+Implementation priorities:
+
+1. Build ingestion and storage pipelines first.
+2. Introduce PostgreSQL and dbt for transformations.
+3. Add Airflow for workflow orchestration.
+4. Introduce Metabase for business dashboards.
+5. Add machine learning workflows and MLflow.
+6. Evaluate Spark and Kafka as optional extensions.
+
+The initial implementation will prioritize lightweight
+processing with Python and Pandas.
+
+Distributed processing will be introduced only if
+dataset size or learning objectives justify it.
