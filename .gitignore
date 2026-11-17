@@ -29,3 +29,10 @@ data/analytics/*
 # OS
 .DS_Store
 Thumbs.db
+
+# Generated ingestion metadata
+data/metadata/*
+!data/metadata/.gitkeep
+!data/metadata/ingestion/
+data/metadata/ingestion/*
+!data/metadata/ingestion/.gitkeep
