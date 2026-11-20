@@ -9,6 +9,7 @@ import pandas as pd
 def read_csv_in_chunks(
     file_path: Path,
     chunk_size: int = 100_000,
+    dtype: dict[str, str] | None = None,
 ) -> Iterator[pd.DataFrame]:
     """Read a CSV file in manageable chunks."""
 
@@ -21,4 +22,8 @@ def read_csv_in_chunks(
     if file_path.suffix.lower() != ".csv":
         raise ValueError(f"Expected a CSV file: {file_path}")
 
-    return pd.read_csv(file_path, chunksize=chunk_size)
+    return pd.read_csv(
+        file_path,
+        chunksize=chunk_size,
+        dtype=dtype,
+    )

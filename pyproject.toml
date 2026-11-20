@@ -9,6 +9,9 @@ description = "Data ingestion and analytics platform for the Olist e-commerce da
 requires-python = ">=3.12"
 dependencies = [
     "pandas>=3.1,<4.0",
+    "sqlalchemy>=2.0,<3.0",
+    "psycopg[binary]>=3.2,<4.0",
+    "python-dotenv>=1.0,<2.0",
 ]
 
 [tool.setuptools]
@@ -16,4 +19,4 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["ingestion*"]
+include = ["ingestion*", "storage*"]

@@ -38,12 +38,16 @@ Responsibilities:
 
 ## 4. Storage
 
-Object Storage: MinIO
+Object Storage: PGSTY Silo (S3-compatible object storage)
 
 Data Warehouse: PostgreSQL
 
-Raw source files will be retained in object storage.
+Raw source files will be retained in the Silo object store.
 Structured analytical data will be loaded into PostgreSQL.
+
+Silo provides an S3-compatible API and is deployed locally through Docker.
+PostgreSQL is the primary relational warehouse, with source datasets
+initially stored in the raw schema.
 
 ## 5. Transformation
 

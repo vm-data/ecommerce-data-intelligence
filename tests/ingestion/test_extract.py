@@ -52,6 +52,28 @@ class TestReadCSVInChunks(unittest.TestCase):
         with self.assertRaises(ValueError):
             read_csv_in_chunks(text_path)
 
+    def test_preserves_leading_zeros_when_dtype_is_string(self):
+        postal_path = Path(self.temp_dir.name) / "postal.csv"
+        postal_path.write_text(
+            "postal_code\n"
+            "01234\n"
+            "00567\n",
+            encoding="utf-8",
+        )
+
+        chunks = list(
+            read_csv_in_chunks(
+                postal_path,
+                chunk_size=2,
+                dtype={"postal_code": "string"},
+            )
+        )
+
+        self.assertEqual(
+            chunks[0]["postal_code"].tolist(),
+            ["01234", "00567"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
