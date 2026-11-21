@@ -36,3 +36,12 @@ data/metadata/*
 !data/metadata/ingestion/
 data/metadata/ingestion/*
 !data/metadata/ingestion/.gitkeep
+
+# dbt generated files
+dbt/**/target/
+dbt/**/dbt_packages/
+dbt/**/logs/
+
+# Runtime logs
+logs/
+*.log
