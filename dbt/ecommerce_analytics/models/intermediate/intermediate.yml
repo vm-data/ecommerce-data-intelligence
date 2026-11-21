@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: int_order_items_enriched
+    description: >
+      Enriched order item data combining order, product,
+      seller, and product category information.
+      The grain is one row per order item.
+
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - not_null
+
+      - name: order_item_id
+        description: Sequential item number within an order.
+        data_tests:
+          - not_null
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - order_item_id

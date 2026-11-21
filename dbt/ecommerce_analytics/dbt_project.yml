@@ -18,8 +18,11 @@ clean-targets:
 models:
   ecommerce_analytics:
     staging:
+      +schema: staging
       +materialized: view
     intermediate:
+      +schema: intermediate
       +materialized: view
     marts:
+      +schema: marts
       +materialized: table
