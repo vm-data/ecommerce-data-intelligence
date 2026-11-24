@@ -1,0 +1,293 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >
+      Order-level fact table combining order details, financial metrics,
+      payment information, reviews, delivery performance, and data quality flags.
+      Grain: one row per order.
+
+    columns:
+      - name: order_id
+        description: Unique identifier for each order.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: Identifier of the customer record associated with the order.
+        data_tests:
+          - not_null
+
+      - name: order_status
+        description: Current order status recorded in the source.
+        data_tests:
+          - not_null
+
+      - name: delivery_status_category
+        description: Delivery outcome classification for the order.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - early
+                  - late
+                  - on_time
+                  - not_delivered
+                  - missing_delivery_timestamp
+                  - invalid_purchase_delivery_sequence
+
+  - name: fct_order_items
+    description: >
+      Order-item-level fact table. Each row represents one item
+      within an order, identified by order_id and order_item_id.
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+
+      - name: order_item_id
+        tests:
+          - not_null
+
+      - name: product_id
+        tests:
+          - not_null
+
+      - name: seller_id
+        tests:
+          - not_null
+
+      - name: item_gmv
+        tests:
+          - not_null
+
+      - name: item_freight_value
+        tests:
+          - not_null
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - order_item_id
+
+  - name: dim_customers
+    description: >
+      Customer dimension at the persistent customer identity grain.
+      Customer location represents the latest observed location.
+    columns:
+      - name: customer_unique_id
+        tests:
+          - unique
+          - not_null
+
+      - name: total_orders
+        tests:
+          - not_null
+
+      - name: is_repeat_customer
+        tests:
+          - not_null
+
+  - name: dim_products
+    description: >
+      Product dimension at one row per product_id, including
+      catalogue attributes and aggregated product sales metrics.
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+      - name: total_order_items
+        tests:
+          - not_null
+
+      - name: distinct_orders
+        tests:
+          - not_null
+
+      - name: total_product_sales_value
+        tests:
+          - not_null
+
+      - name: total_freight_value
+        tests:
+          - not_null
+
+  - name: dim_sellers
+    description: >
+      Seller dimension at one row per seller_id, including
+      seller location and aggregated sales metrics.
+    columns:
+      - name: seller_id
+        tests:
+          - unique
+          - not_null
+
+      - name: total_order_items
+        tests:
+          - not_null
+
+      - name: distinct_orders
+        tests:
+          - not_null
+
+      - name: distinct_products
+        tests:
+          - not_null
+
+      - name: total_sales_value
+        tests:
+          - not_null
+
+      - name: total_freight_value
+        tests:
+          - not_null
+
+  - name: mart_sales_performance
+    description: >
+      Monthly sales performance grouped by customer state.
+      Includes GMV, freight, payment value, order counts and growth.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - purchase_month
+              - customer_state
+    columns:
+      - name: purchase_month
+        tests:
+          - not_null
+
+      - name: customer_state
+        tests:
+          - not_null
+
+      - name: total_orders
+        tests:
+          - not_null
+
+      - name: gross_merchandise_value
+        tests:
+          - not_null
+
+  - name: mart_customer_behavior
+    description: >
+      Customer-level behavioural mart with purchase frequency,
+      monetary value, recency and cohort segmentation.
+    columns:
+      - name: customer_unique_id
+        tests:
+          - unique
+          - not_null
+
+      - name: recency_days
+        tests:
+          - not_null
+
+      - name: purchase_frequency_segment
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - one_time
+                  - occasional
+                  - frequent
+                  - loyal
+
+      - name: monetary_value_segment
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - low_value
+                  - mid_value
+                  - high_value
+
+      - name: recency_segment
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - active
+                  - recently_inactive
+                  - inactive
+
+  - name: mart_product_performance
+    description: >
+      Product-level performance mart with category contribution,
+      overall GMV contribution and product rankings.
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+      - name: reporting_category
+        tests:
+          - not_null
+
+      - name: product_gmv
+        tests:
+          - not_null
+
+      - name: overall_product_rank
+        tests:
+          - not_null
+
+  - name: mart_delivery_performance
+    description: >
+      Monthly delivery performance grouped by delivery outcome,
+      including delivery counts, proportions and durations.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - purchase_month
+              - delivery_status_category
+    columns:
+      - name: purchase_month
+        tests:
+          - not_null
+
+      - name: delivery_status_category
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - early
+                  - late
+                  - on_time
+                  - not_delivered
+                  - missing_delivery_timestamp
+                  - invalid_purchase_delivery_sequence
+
+      - name: total_orders
+        tests:
+          - not_null
+
+  - name: mart_seller_performance
+    description: >
+      Seller-level performance mart with sales, order and item
+      volume rankings and GMV contribution.
+    columns:
+      - name: seller_id
+        tests:
+          - unique
+          - not_null
+
+      - name: seller_gmv
+        tests:
+          - not_null
+
+      - name: seller_gmv_rank
+        tests:
+          - not_null
